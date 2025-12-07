@@ -1,0 +1,248 @@
+# General
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.log
+*.swp
+*.swo
+*~
+*.bak
+*.tmp
+*.temp
+
+# OS generated files
+desktop.ini
+Icon?
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Project specific
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Backend - Gradle/Kotlin
+## Gradle
+.gradle/
+**/gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.jar
+build/
+out/
+!gradle/wrapper/gradle-wrapper.properties
+
+## IntelliJ IDEA
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.hs_err_pid*
+
+## Kotlin
+.kotlin/
+kotlin-js-store/
+
+## Maven (just in case)
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Frontend - Node.js/Vue.js
+## Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.npm/
+.yarn/
+.pnp.*
+
+## Vue.js
+dist/
+dist-ssr/
+*.local
+.cache/
+.vuepress/dist
+
+## Environment
+.env
+.env.local
+.env.*.local
+
+## Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+## Editor directories and files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+.idea/
+
+## OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+## Test
+coverage/
+.nyc_output/
+
+## Build
+dist/
+build/
+node_modules/
+
+## Optional eslint cache
+.eslintcache
+
+## Optional stylelint cache
+.stylelintcache
+
+## Optional REPL history
+.node_repl_history
+
+## Output of 'npm pack'
+*.tgz
+
+## Vite
+.cache/
+*.css.map
+*.js.map
+
+## Vue CLI
+.vuepress/.cache/
+.vuepress/.temp/
+
+## Webpack
+.storybook/dist/
+
+## Optional
+.sass-cache/
+*.css.map
+*.js.map
+
+## Windows
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# JetBrains IDEs
+## IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+## Module-specific
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+## Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+## NetBeans
+nbproject/
+nbactions.xml
+nb-configuration.xml
+
+## Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+## Visual Studio
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+!backend/src/
+!frontend/src/
+!backend/gradle/wrapper/gradle-wrapper.jar
+!backend/gradle/wrapper/gradle-wrapper.properties

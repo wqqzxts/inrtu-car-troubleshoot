@@ -1,0 +1,23 @@
+package domain.models
+
+import domain.enums.EngineType
+
+data class Symptom(
+    val engineType: EngineType,
+    val engineNoise: String? = null,
+    val startingIssue: Boolean = false,
+    val stalling: Boolean = false,
+    val overheating: Boolean = false,
+    val smokeFromExhaust: String? = null,
+    val warningLights: List<String> = emptyList(),
+    val fuelConsumptionIncreased: Boolean = false,
+    val lossOfPower: Boolean = false,
+    val roughIdling: Boolean = false,
+    val transmissionIssues: String? = null,
+    val brakingIssues: String? = null,
+    val electricalProblems: List<String> = emptyList(),
+    val mileage: Int,
+    val lastServiceMonths: Int,
+    val unusualSmells: List<String> = emptyList(),
+    val fluidLeaks: List<String> = emptyList()
+)
