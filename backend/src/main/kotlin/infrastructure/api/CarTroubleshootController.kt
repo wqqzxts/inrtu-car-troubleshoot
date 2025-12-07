@@ -17,9 +17,12 @@ class CarTroubleshootController(
             post {
                 try {
                     val symptom = call.receive<Symptom>()
+                    println("Received symptom: $symptom")
                     val diagnosis = service.diagnose(symptom)
                     call.respond(diagnosis)
                 } catch (e: Exception) {
+                    println("Error processing request: ${e.message}")
+                    e.printStackTrace()
                     call.respond(
                         HttpStatusCode.BadRequest,
                         mapOf("error" to "Invalid request: ${e.message}")

@@ -2,6 +2,9 @@ package domain.models
 
 import domain.enums.EngineType
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Symptom(
     val engineType: EngineType,
     val engineNoise: String? = null,

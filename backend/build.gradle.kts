@@ -22,6 +22,7 @@ dependencies {
     implementation("org.drools:drools-core:7.73.0.Final")
     implementation("org.drools:drools-compiler:7.73.0.Final")
     implementation("org.kie:kie-api:7.73.0.Final")
+    implementation("org.drools:drools-mvel:7.73.0.Final")
 
     implementation("ch.qos.logback:logback-classic:1.4.11")
 
