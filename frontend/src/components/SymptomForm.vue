@@ -5,6 +5,22 @@
       <p class="subtitle">Describe your car's symptoms for diagnosis</p>
     </div>
 
+    <!-- Validation Errors -->
+    <div v-if="validationErrors.length > 0" class="validation-errors">
+      <div class="error-header">
+        <span class="error-icon">⚠️</span>
+        <h3>Invalid Symptom Combination</h3>
+      </div>
+      <ul class="error-list">
+        <li v-for="(error, index) in validationErrors" :key="index">
+          {{ error }}
+        </li>
+      </ul>
+      <button @click="validationErrors = []" class="btn-error-close">
+        Dismiss
+      </button>
+    </div>
+
     <form @submit.prevent="handleSubmit" class="form-grid">
       <!-- Basic Information Section -->
       <div class="form-section">
@@ -17,11 +33,12 @@
             <label for="engineType" class="form-label">
               Engine Type <span class="required">*</span>
             </label>
-            <select 
-              id="engineType" 
+            <select
+              id="engineType"
               v-model="store.formData.engineType"
               class="form-select"
               required
+              @change="onEngineTypeChange"
             >
               <option value="GASOLINE">Gasoline</option>
               <option value="DIESEL">Diesel</option>
@@ -35,29 +52,29 @@
             <label for="mileage" class="form-label">
               Mileage (km) <span class="required">*</span>
             </label>
-            <input 
-              type="number" 
-              id="mileage" 
+            <input
+              type="number"
+              id="mileage"
               v-model.number="store.formData.mileage"
               min="0"
               max="500000"
               class="form-input"
               required
-            >
+            />
           </div>
 
           <div class="form-group">
             <label for="lastServiceMonths" class="form-label">
               Months Since Last Service
             </label>
-            <input 
-              type="number" 
-              id="lastServiceMonths" 
+            <input
+              type="number"
+              id="lastServiceMonths"
               v-model.number="store.formData.lastServiceMonths"
               min="0"
               max="120"
               class="form-input"
-            >
+            />
           </div>
         </div>
       </div>
@@ -71,10 +88,11 @@
         <div class="grid-2">
           <div class="form-group">
             <label for="engineNoise" class="form-label">Engine Noise</label>
-            <select 
-              id="engineNoise" 
+            <select
+              id="engineNoise"
               v-model="store.formData.engineNoise"
               class="form-select"
+              :disabled="isElectric"
             >
               <option value="">None</option>
               <option value="knocking">Knocking</option>
@@ -83,82 +101,111 @@
               <option value="whistling">Whistling</option>
               <option value="grinding">Grinding</option>
             </select>
+            <small v-if="isElectric" class="field-disabled-hint">
+              Electric motors don't have typical engine noises
+            </small>
           </div>
 
           <div class="form-group">
-            <label for="smokeFromExhaust" class="form-label">Exhaust Smoke</label>
-            <select 
-              id="smokeFromExhaust" 
+            <label for="smokeFromExhaust" class="form-label"
+              >Exhaust Smoke</label
+            >
+            <select
+              id="smokeFromExhaust"
               v-model="store.formData.smokeFromExhaust"
               class="form-select"
+              :disabled="isElectric || isHybrid"
             >
               <option value="">None</option>
               <option value="white">White Smoke</option>
               <option value="blue">Blue Smoke</option>
               <option value="black">Black Smoke</option>
             </select>
+            <small v-if="isElectric" class="field-disabled-hint">
+              Electric vehicles don't have exhaust systems
+            </small>
+            <small v-if="isHybrid" class="field-disabled-hint">
+              Hybrid vehicles can still produce exhaust when using combustion
+              engine
+            </small>
           </div>
         </div>
 
         <div class="checkbox-grid">
           <label class="checkbox-label">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               v-model="store.formData.startingIssue"
               class="checkbox-input"
-            >
+              :disabled="isElectric"
+            />
             <span class="checkbox-custom"></span>
             <span>Starting Issues</span>
+            <span v-if="isElectric" class="checkbox-disabled-note"
+              >(N/A for EV)</span
+            >
           </label>
 
           <label class="checkbox-label">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               v-model="store.formData.stalling"
               class="checkbox-input"
-            >
+              :disabled="isElectric"
+            />
             <span class="checkbox-custom"></span>
             <span>Stalling</span>
+            <span v-if="isElectric" class="checkbox-disabled-note"
+              >(N/A for EV)</span
+            >
           </label>
 
           <label class="checkbox-label">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               v-model="store.formData.overheating"
               class="checkbox-input"
-            >
+            />
             <span class="checkbox-custom"></span>
             <span>Overheating</span>
           </label>
 
           <label class="checkbox-label">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               v-model="store.formData.fuelConsumptionIncreased"
               class="checkbox-input"
-            >
+              :disabled="isElectric"
+            />
             <span class="checkbox-custom"></span>
             <span>Increased Fuel Consumption</span>
+            <span v-if="isElectric" class="checkbox-disabled-note"
+              >(N/A for EV)</span
+            >
           </label>
 
           <label class="checkbox-label">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               v-model="store.formData.lossOfPower"
               class="checkbox-input"
-            >
+            />
             <span class="checkbox-custom"></span>
             <span>Loss of Power</span>
           </label>
 
           <label class="checkbox-label">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               v-model="store.formData.roughIdling"
               class="checkbox-input"
-            >
+              :disabled="isElectric"
+            />
             <span class="checkbox-custom"></span>
             <span>Rough Idling</span>
+            <span v-if="isElectric" class="checkbox-disabled-note"
+              >(N/A for EV)</span
+            >
           </label>
         </div>
       </div>
@@ -169,11 +216,13 @@
           <span class="icon">🔧</span>
           System Issues
         </h3>
-        
+
         <div class="form-group">
-          <label for="transmissionIssues" class="form-label">Transmission Issues</label>
-          <select 
-            id="transmissionIssues" 
+          <label for="transmissionIssues" class="form-label"
+            >Transmission Issues</label
+          >
+          <select
+            id="transmissionIssues"
             v-model="store.formData.transmissionIssues"
             class="form-select"
           >
@@ -187,8 +236,8 @@
 
         <div class="form-group">
           <label for="brakingIssues" class="form-label">Braking Issues</label>
-          <select 
-            id="brakingIssues" 
+          <select
+            id="brakingIssues"
             v-model="store.formData.brakingIssues"
             class="form-select"
           >
@@ -212,14 +261,25 @@
           <div class="form-group">
             <label class="form-label">Warning Lights</label>
             <div class="multi-select">
-              <label v-for="light in warningLights" :key="light.value" class="multi-select-item">
-                <input 
-                  type="checkbox" 
+              <label
+                v-for="light in filteredWarningLights"
+                :key="light.value"
+                class="multi-select-item"
+              >
+                <input
+                  type="checkbox"
                   :value="light.value"
                   v-model="store.formData.warningLights"
                   class="multi-select-checkbox"
-                >
+                  :disabled="isElectric && light.value === 'oil_pressure'"
+                />
                 <span class="multi-select-text">{{ light.label }}</span>
+                <span
+                  v-if="isElectric && light.value === 'oil_pressure'"
+                  class="multi-select-disabled"
+                >
+                  (N/A)
+                </span>
               </label>
             </div>
           </div>
@@ -227,13 +287,17 @@
           <div class="form-group">
             <label class="form-label">Electrical Problems</label>
             <div class="multi-select">
-              <label v-for="problem in electricalProblems" :key="problem.value" class="multi-select-item">
-                <input 
-                  type="checkbox" 
+              <label
+                v-for="problem in electricalProblems"
+                :key="problem.value"
+                class="multi-select-item"
+              >
+                <input
+                  type="checkbox"
                   :value="problem.value"
                   v-model="store.formData.electricalProblems"
                   class="multi-select-checkbox"
-                >
+                />
                 <span class="multi-select-text">{{ problem.label }}</span>
               </label>
             </div>
@@ -242,14 +306,33 @@
           <div class="form-group">
             <label class="form-label">Unusual Smells</label>
             <div class="multi-select">
-              <label v-for="smell in unusualSmells" :key="smell.value" class="multi-select-item">
-                <input 
-                  type="checkbox" 
+              <label
+                v-for="smell in filteredUnusualSmells"
+                :key="smell.value"
+                class="multi-select-item"
+              >
+                <input
+                  type="checkbox"
                   :value="smell.value"
                   v-model="store.formData.unusualSmells"
                   class="multi-select-checkbox"
-                >
+                  :disabled="
+                    isElectric &&
+                    ['burning_oil', 'gasoline', 'rotten_eggs'].includes(
+                      smell.value
+                    )
+                  "
+                />
                 <span class="multi-select-text">{{ smell.label }}</span>
+                <span
+                  v-if="
+                    isElectric &&
+                    ['burning_oil', 'gasoline'].includes(smell.value)
+                  "
+                  class="multi-select-disabled"
+                >
+                  (N/A)
+                </span>
               </label>
             </div>
           </div>
@@ -257,14 +340,33 @@
           <div class="form-group">
             <label class="form-label">Fluid Leaks</label>
             <div class="multi-select">
-              <label v-for="leak in fluidLeaks" :key="leak.value" class="multi-select-item">
-                <input 
-                  type="checkbox" 
+              <label
+                v-for="leak in filteredFluidLeaks"
+                :key="leak.value"
+                class="multi-select-item"
+              >
+                <input
+                  type="checkbox"
                   :value="leak.value"
                   v-model="store.formData.fluidLeaks"
                   class="multi-select-checkbox"
-                >
+                  :disabled="
+                    isElectric &&
+                    leak.value !== 'coolant' &&
+                    leak.value !== 'brake'
+                  "
+                />
                 <span class="multi-select-text">{{ leak.label }}</span>
+                <span
+                  v-if="
+                    isElectric &&
+                    leak.value !== 'coolant' &&
+                    leak.value !== 'brake'
+                  "
+                  class="multi-select-disabled"
+                >
+                  (N/A)
+                </span>
               </label>
             </div>
           </div>
@@ -273,27 +375,27 @@
 
       <!-- Form Actions -->
       <div class="form-actions">
-        <button 
-          type="button" 
-          @click="store.loadExampleSymptoms"
+        <button
+          type="button"
+          @click="loadExampleWithValidation"
           class="btn btn-secondary"
           :disabled="store.isLoading"
         >
           Load Example
         </button>
-        
-        <button 
-          type="button" 
-          @click="store.resetForm"
+
+        <button
+          type="button"
+          @click="resetForm"
           class="btn btn-outline"
           :disabled="store.isLoading"
         >
           Reset Form
         </button>
-        
-        <button 
-          type="submit" 
-          :disabled="store.isLoading"
+
+        <button
+          type="submit"
+          :disabled="store.isLoading || validationErrors.length > 0"
           class="btn btn-primary"
         >
           <span v-if="store.isLoading" class="loading-text">
@@ -308,50 +410,308 @@
 </template>
 
 <script setup>
-import { useTroubleshooterStore } from '@/store/troubleshooter'
+import { useTroubleshooterStore } from "@/store/troubleshooter";
+import { ref, computed, watch } from "vue";
 
-const store = useTroubleshooterStore()
+const store = useTroubleshooterStore();
+const validationErrors = ref([]);
+
+const isElectric = computed(() => store.formData.engineType === "ELECTRIC");
+const isHybrid = computed(() => store.formData.engineType === "HYBRID");
 
 const warningLights = [
-  { value: 'check_engine', label: 'Check Engine' },
-  { value: 'oil_pressure', label: 'Oil Pressure' },
-  { value: 'battery', label: 'Battery' },
-  { value: 'abs', label: 'ABS' },
-  { value: 'airbag', label: 'Airbag' },
-  { value: 'coolant_temp', label: 'Coolant Temperature' },
-  { value: 'tire_pressure', label: 'Tire Pressure' },
-]
+  { value: "check_engine", label: "Check Engine" },
+  { value: "oil_pressure", label: "Oil Pressure" },
+  { value: "battery", label: "Battery" },
+  { value: "abs", label: "ABS" },
+  { value: "airbag", label: "Airbag" },
+  { value: "coolant_temp", label: "Coolant Temperature" },
+  { value: "tire_pressure", label: "Tire Pressure" },
+];
 
 const electricalProblems = [
-  { value: 'dead_battery', label: 'Dead Battery' },
-  { value: 'dim_lights', label: 'Dim Lights' },
-  { value: 'radio_reset', label: 'Radio Reset' },
-  { value: 'power_window_issues', label: 'Power Window Issues' },
-  { value: 'blown_fuses', label: 'Blown Fuses' },
-]
+  { value: "dead_battery", label: "Dead Battery" },
+  { value: "dim_lights", label: "Dim Lights" },
+  { value: "radio_reset", label: "Radio Reset" },
+  { value: "power_window_issues", label: "Power Window Issues" },
+  { value: "blown_fuses", label: "Blown Fuses" },
+];
 
 const unusualSmells = [
-  { value: 'burning_oil', label: 'Burning Oil' },
-  { value: 'coolant', label: 'Sweet Coolant' },
-  { value: 'gasoline', label: 'Gasoline' },
-  { value: 'rotten_eggs', label: 'Rotten Eggs' },
-  { value: 'burning_rubber', label: 'Burning Rubber' },
-]
+  { value: "burning_oil", label: "Burning Oil" },
+  { value: "coolant", label: "Sweet Coolant" },
+  { value: "gasoline", label: "Gasoline" },
+  { value: "rotten_eggs", label: "Rotten Eggs" },
+  { value: "burning_rubber", label: "Burning Rubber" },
+];
 
 const fluidLeaks = [
-  { value: 'oil', label: 'Oil' },
-  { value: 'coolant', label: 'Coolant' },
-  { value: 'transmission', label: 'Transmission Fluid' },
-  { value: 'brake', label: 'Brake Fluid' },
-  { value: 'power_steering', label: 'Power Steering Fluid' },
-]
+  { value: "oil", label: "Oil" },
+  { value: "coolant", label: "Coolant" },
+  { value: "transmission", label: "Transmission Fluid" },
+  { value: "brake", label: "Brake Fluid" },
+  { value: "power_steering", label: "Power Steering Fluid" },
+];
+
+const filteredWarningLights = computed(() => {
+  if (isElectric.value) {
+    return warningLights.filter((light) => light.value !== "oil_pressure");
+  }
+  return warningLights;
+});
+
+const filteredUnusualSmells = computed(() => {
+  if (isElectric.value) {
+    return unusualSmells.filter(
+      (smell) =>
+        !["burning_oil", "gasoline", "rotten_eggs"].includes(smell.value)
+    );
+  }
+  return unusualSmells;
+});
+
+const filteredFluidLeaks = computed(() => {
+  if (isElectric.value) {
+    return fluidLeaks.filter(
+      (leak) => leak.value === "coolant" || leak.value === "brake"
+    );
+  }
+  return fluidLeaks;
+});
+
+const validateForm = () => {
+  const errors = [];
+  const form = store.formData;
+
+  if (isElectric.value) {
+    if (form.smokeFromExhaust) {
+      errors.push("Electric vehicles do not have exhaust systems");
+    }
+
+    if (form.unusualSmells.includes("burning_oil")) {
+      errors.push("Electric vehicles do not use engine oil");
+    }
+
+    if (form.fluidLeaks.includes("oil")) {
+      errors.push("Electric vehicles do not have engine oil");
+    }
+
+    if (form.fluidLeaks.includes("transmission")) {
+      errors.push(
+        "Most electric vehicles use single-speed transmissions without traditional fluid"
+      );
+    }
+
+    if (form.fluidLeaks.includes("power_steering")) {
+      errors.push("Most electric vehicles use electric power steering");
+    }
+
+    if (form.startingIssue) {
+      errors.push(
+        "Electric vehicles don't have traditional engine starting systems"
+      );
+    }
+
+    if (form.stalling) {
+      errors.push("Electric vehicles don't stall like combustion engines");
+    }
+
+    if (form.fuelConsumptionIncreased) {
+      errors.push("Electric vehicles don't use fuel");
+    }
+
+    if (form.roughIdling) {
+      errors.push("Electric vehicles don't idle");
+    }
+
+    if (form.warningLights.includes("oil_pressure")) {
+      errors.push("Electric vehicles don't have oil pressure systems");
+    }
+  }
+
+  if (isHybrid.value) {
+  }
+
+  if (form.mileage < 0 || form.mileage > 500000) {
+    errors.push("Mileage must be between 0 and 500,000 km");
+  }
+
+  if (form.lastServiceMonths < 0 || form.lastServiceMonths > 120) {
+    errors.push("Last service must be between 0 and 120 months ago");
+  }
+
+  validationErrors.value = errors;
+  return errors.length === 0;
+};
+
+watch(
+  () => store.formData,
+  () => {
+    validateForm();
+  },
+  { deep: true }
+);
+
+const onEngineTypeChange = () => {
+  if (isElectric.value) {
+    store.formData.smokeFromExhaust = "";
+    store.formData.engineNoise = "";
+    store.formData.startingIssue = false;
+    store.formData.stalling = false;
+    store.formData.fuelConsumptionIncreased = false;
+    store.formData.roughIdling = false;
+
+    store.formData.unusualSmells = store.formData.unusualSmells.filter(
+      (smell) => !["burning_oil", "gasoline", "rotten_eggs"].includes(smell)
+    );
+
+    store.formData.fluidLeaks = store.formData.fluidLeaks.filter(
+      (leak) => !["oil", "transmission", "power_steering"].includes(leak)
+    );
+
+    store.formData.warningLights = store.formData.warningLights.filter(
+      (light) => light !== "oil_pressure"
+    );
+  }
+
+  validateForm();
+};
 
 const handleSubmit = () => {
-  store.submitSymptoms(store.formData)
-}
+  if (validateForm()) {
+    store.submitSymptoms(store.formData);
+  } else {
+    setTimeout(() => {
+      const errorElement = document.querySelector(".validation-errors");
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
+  }
+};
+
+const loadExampleWithValidation = () => {
+  store.loadExampleSymptoms();
+
+  setTimeout(() => {
+    validateForm();
+    if (validationErrors.value.length > 0) {
+      console.warn(
+        "Example contains invalid combinations for selected engine type"
+      );
+    }
+  }, 100);
+};
+
+const resetForm = () => {
+  store.resetForm();
+  validationErrors.value = [];
+};
 </script>
 
 <style scoped>
+.validation-errors {
+  background: linear-gradient(135deg, #fff5f5, #fed7d7);
+  border: 2px solid #fc8181;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  animation: slideIn 0.3s ease;
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.error-header h3 {
+  color: #c53030;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.error-icon {
+  font-size: 1.5rem;
+}
+
+.error-list {
+  color: #742a2a;
+  margin: 0 0 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.error-list li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.btn-error-close {
+  background: #c53030;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-error-close:hover {
+  background: #9b2c2c;
+}
+
+.field-disabled-hint {
+  display: block;
+  color: #718096;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.checkbox-disabled-note {
+  color: #a0aec0;
+  font-size: 0.85rem;
+  margin-left: 0.25rem;
+}
+
+.multi-select-disabled {
+  color: #a0aec0;
+  font-size: 0.85rem;
+  margin-left: auto;
+  font-style: italic;
+}
+
+.form-select:disabled,
+.checkbox-input:disabled + .checkbox-custom {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f7fafc;
+}
+
+.checkbox-label
+  input:disabled
+  ~ span:not(.checkbox-custom):not(.checkbox-disabled-note) {
+  opacity: 0.6;
+}
+
+.multi-select-item input:disabled ~ .multi-select-text {
+  opacity: 0.6;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .symptom-form {
   padding: 2rem;
   background: white;
@@ -487,7 +847,7 @@ const handleSubmit = () => {
 }
 
 .checkbox-input:checked + .checkbox-custom::after {
-  content: '✓';
+  content: "✓";
   color: white;
   font-size: 14px;
 }
@@ -559,7 +919,11 @@ const handleSubmit = () => {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
   color: white;
   min-width: 160px;
 }
@@ -614,11 +978,11 @@ const handleSubmit = () => {
   .symptom-form {
     padding: 1rem;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .btn {
     width: 100%;
   }
