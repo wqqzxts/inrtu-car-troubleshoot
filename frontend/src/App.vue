@@ -3,10 +3,7 @@
     <div class="app-header">
       <div class="header-content">
         <h1>Car Troubleshooting Expert System</h1>
-        <p class="header-subtitle">
-          Diagnosis based on expert system rules
-        </p>
-      </div>      
+      </div>
     </div>
 
     <div class="app-main">
@@ -28,30 +25,6 @@
           </div>
           <div v-if="store.symptomsHistory.length === 0" class="empty-history">
             No diagnosis history yet
-          </div>
-        </div>
-
-        <div class="sidebar-section">
-          <h3>Quick Tips</h3>
-          <div class="tips">
-            <div class="tip">
-              <div class="tip-icon">💡</div>
-              <div class="tip-content">
-                <strong>Be Specific:</strong> The more detailed your symptoms, the more accurate the diagnosis.
-              </div>
-            </div>
-            <div class="tip">
-              <div class="tip-icon">⚡</div>
-              <div class="tip-content">
-                <strong>Recent Issues:</strong> Note any recent repairs or maintenance.
-              </div>
-            </div>
-            <div class="tip">
-              <div class="tip-icon">🔍</div>
-              <div class="tip-content">
-                <strong>Check Basics:</strong> Always verify fluid levels and tire pressure first.
-              </div>
-            </div>
           </div>
         </div>
       </div>
