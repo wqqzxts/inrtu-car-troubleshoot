@@ -23,4 +23,16 @@ data class Symptom(
     val lastServiceMonths: Int,
     val unusualSmells: List<String> = emptyList(),
     val fluidLeaks: List<String> = emptyList()
-)
+) {
+    fun hasWarningLight(light: String): Boolean {
+        return warningLights.any { it.equals(light, ignoreCase = true) }
+    }
+
+    fun hasFluidLeak(color: String): Boolean {
+        return fluidLeaks.any { it.contains(color, ignoreCase = true) }
+    }
+
+    fun hasUnusualSmell(smell: String): Boolean {
+        return unusualSmells.any { it.contains(smell, ignoreCase = true) }
+    }
+}

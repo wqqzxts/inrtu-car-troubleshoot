@@ -3,8 +3,11 @@ package rules
 import domain.models.*
 import domain.enums.*
 import java.util.ArrayList
+import java.util.Map
 
 dialect "java"
+
+global Map<String, CarProblem> problemsMap;
 
 // Rule 1: Dead Battery Detection
 rule "Dead Battery Rule"
@@ -14,11 +17,13 @@ rule "Dead Battery Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R001", "Dead Battery Rule",
             "Starting issue detected", "Check battery voltage and connections"));
-        insert(CarProblem.create("P001", "Dead Battery", "Battery has insufficient charge",
+        CarProblem problem = CarProblem.create("P001", "Dead Battery", "Battery has insufficient charge",
             ProblemCategory.BATTERY, Severity.MEDIUM,
             new String[]{"Old battery", "Parasitic drain", "Faulty alternator"},
             new String[]{"Jump start car", "Replace battery", "Check charging system"},
-            150.0, "1-2 hours"));
+            150.0, "1-2 hours");
+        insert(problem);
+        problemsMap.put("P001", problem);
 end
 
 // Rule 2: Alternator Failure
@@ -29,10 +34,12 @@ rule "Alternator Failure Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R002", "Alternator Failure Rule",
             "Battery warning light + starting issue", "Test alternator output"));
-        insert(CarProblem.create("P002", "Faulty Alternator", "Alternator not charging battery",
+        CarProblem problem = CarProblem.create("P002", "Faulty Alternator", "Alternator not charging battery",
             ProblemCategory.ELECTRICAL, Severity.HIGH,
             new String[]{"Worn brushes", "Faulty voltage regulator", "Bad diodes"},
-            new String[]{"Replace alternator", "Check drive belt"}, 400.0, "2-3 hours"));
+            new String[]{"Replace alternator", "Check drive belt"}, 400.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P002", problem);
 end
 
 // Rule 3: Starter Motor Failure
@@ -44,6 +51,7 @@ rule "Starter Motor Failure Rule"
         insert(RuleExecution.create("R003", "Starter Motor Failure Rule",
             "Starting issue persists after battery/alternator check",
             "Test starter motor"));
+        // Note: Rule 3 doesn't create a CarProblem, only RuleExecution
 end
 
 // Rule 4: Overheating Engine
@@ -54,11 +62,13 @@ rule "Engine Overheating Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R004", "Engine Overheating Rule",
             "Engine temperature above normal", "Check cooling system"));
-        insert(CarProblem.create("P004", "Cooling System Failure",
+        CarProblem problem = CarProblem.create("P004", "Cooling System Failure",
             "Engine overheating detected", ProblemCategory.COOLING_SYSTEM, Severity.CRITICAL,
             new String[]{"Low coolant", "Faulty thermostat", "Water pump failure", "Clogged radiator"},
             new String[]{"Check coolant level", "Replace thermostat", "Flush cooling system"},
-            300.0, "3-4 hours"));
+            300.0, "3-4 hours");
+        insert(problem);
+        problemsMap.put("P004", problem);
 end
 
 // Rule 5: Coolant Leak
@@ -69,11 +79,13 @@ rule "Coolant Leak Detection"
     then
         $d.getRuleChain().add(RuleExecution.create("R005", "Coolant Leak Detection",
             "Colored fluid leak detected", "Inspect for coolant leaks"));
-        insert(CarProblem.create("P005", "Coolant Leak", "Coolant leakage detected",
+        CarProblem problem = CarProblem.create("P005", "Coolant Leak", "Coolant leakage detected",
             ProblemCategory.COOLING_SYSTEM, Severity.HIGH,
             new String[]{"Hose failure", "Radiator crack", "Water pump seal failure"},
             new String[]{"Pressure test system", "Replace leaking components"},
-            200.0, "2-3 hours"));
+            200.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P005", problem);
 end
 
 // Rule 6: Oil Leak
@@ -84,11 +96,13 @@ rule "Oil Leak Detection"
     then
         $d.getRuleChain().add(RuleExecution.create("R006", "Oil Leak Detection",
             "Dark fluid leak detected", "Check oil level and source"));
-        insert(CarProblem.create("P006", "Oil Leak", "Engine oil leakage",
+        CarProblem problem = CarProblem.create("P006", "Oil Leak", "Engine oil leakage",
             ProblemCategory.ENGINE, Severity.MEDIUM,
             new String[]{"Valve cover gasket", "Oil pan gasket", "Rear main seal"},
             new String[]{"Identify leak source", "Replace gaskets/seals"},
-            250.0, "2-4 hours"));
+            250.0, "2-4 hours");
+        insert(problem);
+        problemsMap.put("P006", problem);
 end
 
 // Rule 7: Transmission Fluid Leak
@@ -99,11 +113,13 @@ rule "Transmission Fluid Leak"
     then
         $d.getRuleChain().add(RuleExecution.create("R007", "Transmission Fluid Leak",
             "Red fluid leak + transmission issues", "Check transmission fluid"));
-        insert(CarProblem.create("P007", "Transmission Fluid Leak",
+        CarProblem problem = CarProblem.create("P007", "Transmission Fluid Leak",
             "Transmission fluid leakage", ProblemCategory.TRANSMISSION, Severity.HIGH,
             new String[]{"Transmission seal failure", "Pan gasket leak"},
             new String[]{"Check fluid level", "Replace seals", "Top up fluid"},
-            350.0, "3-5 hours"));
+            350.0, "3-5 hours");
+        insert(problem);
+        problemsMap.put("P007", problem);
 end
 
 // Rule 8: Brake Fluid Leak
@@ -115,11 +131,13 @@ rule "Brake Fluid Leak"
     then
         $d.getRuleChain().add(RuleExecution.create("R008", "Brake Fluid Leak",
             "Clear/Yellow fluid + braking issues", "Check brake system"));
-        insert(CarProblem.create("P008", "Brake Fluid Leak",
+        CarProblem problem = CarProblem.create("P008", "Brake Fluid Leak",
             "Brake hydraulic system leak", ProblemCategory.BRAKING_SYSTEM, Severity.CRITICAL,
             new String[]{"Brake line corrosion", "Caliper/wheel cylinder leak", "Master cylinder failure"},
             new String[]{"Inspect brake lines", "Bleed brake system", "Replace components"},
-            400.0, "4-6 hours"));
+            400.0, "4-6 hours");
+        insert(problem);
+        problemsMap.put("P008", problem);
 end
 
 // Rule 9: Check Engine Light
@@ -130,11 +148,13 @@ rule "Check Engine Light Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R009", "Check Engine Light Rule",
             "Check Engine light is on", "Read diagnostic trouble codes"));
-        insert(CarProblem.create("P009", "Engine Control Issue",
+        CarProblem problem = CarProblem.create("P009", "Engine Control Issue",
             "Check Engine light illuminated", ProblemCategory.ENGINE, Severity.MEDIUM,
             new String[]{"O2 sensor failure", "Catalytic converter", "Ignition coil", "Mass airflow sensor"},
             new String[]{"Read OBD-II codes", "Diagnose specific fault"},
-            150.0, "1 hour"));
+            150.0, "1 hour");
+        insert(problem);
+        problemsMap.put("P009", problem);
 end
 
 // Rule 10: Multiple Warning Lights
@@ -145,11 +165,13 @@ rule "Multiple Warning Lights Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R010", "Multiple Warning Lights Rule",
             "Multiple warning lights active", "Check electrical system and ECU"));
-        insert(CarProblem.create("P010", "Electrical System Fault",
+        CarProblem problem = CarProblem.create("P010", "Electrical System Fault",
             "Multiple system warnings", ProblemCategory.ELECTRICAL, Severity.HIGH,
             new String[]{"Faulty ECU", "Grounding issues", "Voltage regulator"},
             new String[]{"Complete system scan", "Check wiring harness", "Test ECU"},
-            500.0, "4-5 hours"));
+            500.0, "4-5 hours");
+        insert(problem);
+        problemsMap.put("P010", problem);
 end
 
 // Rule 11: Rough Idling
@@ -160,11 +182,13 @@ rule "Rough Idle Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R011", "Rough Idle Rule",
             "Engine runs rough at idle", "Check ignition and fuel systems"));
-        insert(CarProblem.create("P011", "Rough Idle Condition",
+        CarProblem problem = CarProblem.create("P011", "Rough Idle Condition",
             "Unstable engine idle", ProblemCategory.IGNITION_SYSTEM, Severity.MEDIUM,
             new String[]{"Dirty fuel injectors", "Faulty spark plugs", "Vacuum leak", "Dirty throttle body"},
             new String[]{"Clean fuel system", "Replace spark plugs", "Check for vacuum leaks"},
-            200.0, "2-3 hours"));
+            200.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P011", problem);
 end
 
 // Rule 12: Misfire Detection
@@ -175,11 +199,13 @@ rule "Engine Misfire Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R012", "Engine Misfire Rule",
             "Loss of power + rough idle", "Check for cylinder misfire"));
-        insert(CarProblem.create("P012", "Engine Misfire",
+        CarProblem problem = CarProblem.create("P012", "Engine Misfire",
             "One or more cylinders not firing properly", ProblemCategory.IGNITION_SYSTEM, Severity.MEDIUM,
             new String[]{"Bad spark plugs", "Faulty ignition coils", "Fuel delivery issue"},
             new String[]{"Scan for misfire codes", "Test ignition components", "Check fuel pressure"},
-            300.0, "2-3 hours"));
+            300.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P012", problem);
 end
 
 // Rule 13: Fuel Pump Failure
@@ -190,11 +216,13 @@ rule "Fuel Pump Failure Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R013", "Fuel Pump Failure Rule",
             "Whining noise + starting/stalling issues", "Test fuel pressure"));
-        insert(CarProblem.create("P013", "Fuel Pump Failure",
+        CarProblem problem = CarProblem.create("P013", "Fuel Pump Failure",
             "Insufficient fuel delivery", ProblemCategory.FUEL_SYSTEM, Severity.HIGH,
             new String[]{"Worn fuel pump", "Clogged fuel filter", "Electrical fault"},
             new String[]{"Replace fuel pump", "Change fuel filter", "Check wiring"},
-            450.0, "3-4 hours"));
+            450.0, "3-4 hours");
+        insert(problem);
+        problemsMap.put("P013", problem);
 end
 
 // Rule 14: Clogged Fuel Filter
@@ -205,11 +233,13 @@ rule "Clogged Fuel Filter Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R014", "Clogged Fuel Filter Rule",
             "High mileage + power loss + increased fuel consumption", "Check fuel filter"));
-        insert(CarProblem.create("P014", "Clogged Fuel Filter",
+        CarProblem problem = CarProblem.create("P014", "Clogged Fuel Filter",
             "Restricted fuel flow", ProblemCategory.FUEL_SYSTEM, Severity.LOW,
             new String[]{"Dirty fuel", "Normal wear"},
             new String[]{"Replace fuel filter"},
-            100.0, "1 hour"));
+            100.0, "1 hour");
+        insert(problem);
+        problemsMap.put("P014", problem);
 end
 
 // Rule 15: Dirty Air Filter
@@ -221,11 +251,13 @@ rule "Dirty Air Filter Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R015", "Dirty Air Filter Rule",
             "Long service interval + power/fuel issues", "Check air filter"));
-        insert(CarProblem.create("P015", "Dirty Air Filter",
+        CarProblem problem = CarProblem.create("P015", "Dirty Air Filter",
             "Restricted air intake", ProblemCategory.ENGINE, Severity.LOW,
             new String[]{"Normal accumulation"},
             new String[]{"Replace air filter"},
-            50.0, "0.5 hours"));
+            50.0, "0.5 hours");
+        insert(problem);
+        problemsMap.put("P015", problem);
 end
 
 // Rule 16: Worn Spark Plugs
@@ -237,11 +269,13 @@ rule "Worn Spark Plugs Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R016", "Worn Spark Plugs Rule",
             "High mileage gasoline engine + performance issues", "Inspect spark plugs"));
-        insert(CarProblem.create("P016", "Worn Spark Plugs",
+        CarProblem problem = CarProblem.create("P016", "Worn Spark Plugs",
             "Ignition performance degraded", ProblemCategory.IGNITION_SYSTEM, Severity.MEDIUM,
             new String[]{"Normal wear", "Incorrect gap"},
             new String[]{"Replace spark plugs", "Check ignition timing"},
-            150.0, "1-2 hours"));
+            150.0, "1-2 hours");
+        insert(problem);
+        problemsMap.put("P016", problem);
 end
 
 // Rule 17: Faulty Oxygen Sensor
@@ -253,11 +287,13 @@ rule "Oxygen Sensor Failure Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R017", "Oxygen Sensor Failure Rule",
             "Increased fuel consumption + Check Engine light", "Test O2 sensors"));
-        insert(CarProblem.create("P017", "Faulty Oxygen Sensor",
+        CarProblem problem = CarProblem.create("P017", "Faulty Oxygen Sensor",
             "Incorrect air-fuel ratio measurement", ProblemCategory.EXHAUST_SYSTEM, Severity.MEDIUM,
             new String[]{"Normal degradation", "Contamination"},
             new String[]{"Replace oxygen sensor(s)"},
-            250.0, "1-2 hours"));
+            250.0, "1-2 hours");
+        insert(problem);
+        problemsMap.put("P017", problem);
 end
 
 // Rule 18: Catalytic Converter Issue
@@ -269,11 +305,13 @@ rule "Catalytic Converter Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R018", "Catalytic Converter Rule",
             "Rotten egg smell + power loss", "Check catalytic converter"));
-        insert(CarProblem.create("P018", "Catalytic Converter Failure",
+        CarProblem problem = CarProblem.create("P018", "Catalytic Converter Failure",
             "Exhaust restriction", ProblemCategory.EXHAUST_SYSTEM, Severity.HIGH,
             new String[]{"Contamination", "Overheating", "Physical damage"},
             new String[]{"Replace catalytic converter"},
-            1200.0, "3-4 hours"));
+            1200.0, "3-4 hours");
+        insert(problem);
+        problemsMap.put("P018", problem);
 end
 
 // Rule 19: Transmission Slipping
@@ -284,11 +322,13 @@ rule "Transmission Slipping Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R019", "Transmission Slipping Rule",
             "Transmission slips + power loss", "Check transmission fluid and condition"));
-        insert(CarProblem.create("P019", "Transmission Slipping",
+        CarProblem problem = CarProblem.create("P019", "Transmission Slipping",
             "Gear engagement issues", ProblemCategory.TRANSMISSION, Severity.HIGH,
             new String[]{"Low fluid", "Worn clutches", "Solenoid issues"},
             new String[]{"Check fluid level/condition", "Diagnose transmission"},
-            800.0, "4-6 hours"));
+            800.0, "4-6 hours");
+        insert(problem);
+        problemsMap.put("P019", problem);
 end
 
 // Rule 20: Brake Pad Wear
@@ -299,11 +339,13 @@ rule "Brake Pad Wear Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R020", "Brake Pad Wear Rule",
             "Squealing brakes + mileage", "Inspect brake pads"));
-        insert(CarProblem.create("P020", "Worn Brake Pads",
+        CarProblem problem = CarProblem.create("P020", "Worn Brake Pads",
             "Brake pads at minimum thickness", ProblemCategory.BRAKING_SYSTEM, Severity.MEDIUM,
             new String[]{"Normal wear", "Aggressive driving"},
             new String[]{"Replace brake pads", "Resurface rotors if needed"},
-            300.0, "2-3 hours"));
+            300.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P020", problem);
 end
 
 // Rule 21: Worn Brake Rotors
@@ -314,11 +356,13 @@ rule "Brake Rotor Wear Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R021", "Brake Rotor Wear Rule",
             "Brake pedal vibration/pulsation", "Check brake rotors"));
-        insert(CarProblem.create("P021", "Worn/Damaged Brake Rotors",
+        CarProblem problem = CarProblem.create("P021", "Worn/Damaged Brake Rotors",
             "Uneven rotor surface", ProblemCategory.BRAKING_SYSTEM, Severity.MEDIUM,
             new String[]{"Normal wear", "Overheating", "Improper installation"},
             new String[]{"Resurface or replace rotors"},
-            400.0, "3-4 hours"));
+            400.0, "3-4 hours");
+        insert(problem);
+        problemsMap.put("P021", problem);
 end
 
 // Rule 22: Suspension Issue
@@ -329,11 +373,13 @@ rule "Suspension Problem Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R022", "Suspension Problem Rule",
             "Clunking noise from suspension", "Inspect suspension components"));
-        insert(CarProblem.create("P022", "Suspension Component Failure",
+        CarProblem problem = CarProblem.create("P022", "Suspension Component Failure",
             "Worn suspension parts", ProblemCategory.SUSPENSION, Severity.MEDIUM,
             new String[]{"Worn bushings", "Bad struts/shocks", "Ball joint wear"},
             new String[]{"Inspect and replace worn components"},
-            600.0, "3-5 hours"));
+            600.0, "3-5 hours");
+        insert(problem);
+        problemsMap.put("P022", problem);
 end
 
 // Rule 23: Tire Pressure Warning
@@ -344,11 +390,13 @@ rule "Tire Pressure Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R023", "Tire Pressure Rule",
             "Tire pressure warning light", "Check tire pressures"));
-        insert(CarProblem.create("P023", "Low Tire Pressure",
+        CarProblem problem = CarProblem.create("P023", "Low Tire Pressure",
             "Tire(s) underinflated", ProblemCategory.SUSPENSION, Severity.LOW,
             new String[]{"Normal air loss", "Puncture", "Temperature changes"},
             new String[]{"Check and adjust tire pressures", "Repair puncture if needed"},
-            0.0, "0.5 hours"));
+            0.0, "0.5 hours");
+        insert(problem);
+        problemsMap.put("P023", problem);
 end
 
 // Rule 24: ABS System Fault
@@ -359,11 +407,13 @@ rule "ABS System Fault Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R024", "ABS System Fault Rule",
             "ABS light + braking issues", "Diagnose ABS system"));
-        insert(CarProblem.create("P024", "ABS System Fault",
+        CarProblem problem = CarProblem.create("P024", "ABS System Fault",
             "Anti-lock braking system malfunction", ProblemCategory.BRAKING_SYSTEM, Severity.HIGH,
             new String[]{"Faulty wheel sensor", "ABS module failure", "Wiring issue"},
             new String[]{"Scan ABS codes", "Test wheel sensors", "Check ABS module"},
-            500.0, "3-4 hours"));
+            500.0, "3-4 hours");
+        insert(problem);
+        problemsMap.put("P024", problem);
 end
 
 // Rule 25: Power Steering Issue
@@ -375,11 +425,13 @@ rule "Power Steering Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R025", "Power Steering Rule",
             "Groaning noise + possible fluid leak", "Check power steering system"));
-        insert(CarProblem.create("P025", "Power Steering Problem",
+        CarProblem problem = CarProblem.create("P025", "Power Steering Problem",
             "Power assist reduced or noisy", ProblemCategory.SUSPENSION, Severity.MEDIUM,
             new String[]{"Low fluid", "Pump failure", "Leaking rack"},
             new String[]{"Check fluid level", "Inspect for leaks", "Test pump"},
-            350.0, "2-3 hours"));
+            350.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P025", problem);
 end
 
 // Rule 26: Serpentine Belt Issue
@@ -390,11 +442,13 @@ rule "Serpentine Belt Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R026", "Serpentine Belt Rule",
             "Squealing engine noise", "Inspect serpentine/drive belt"));
-        insert(CarProblem.create("P026", "Worn Serpentine Belt",
+        CarProblem problem = CarProblem.create("P026", "Worn Serpentine Belt",
             "Drive belt slipping or worn", ProblemCategory.ENGINE, Severity.MEDIUM,
             new String[]{"Normal wear", "Misalignment", "Tensioner failure"},
             new String[]{"Replace belt", "Check tensioner and pulleys"},
-            150.0, "1 hour"));
+            150.0, "1 hour");
+        insert(problem);
+        problemsMap.put("P026", problem);
 end
 
 // Rule 27: Timing Belt/Chain
@@ -406,11 +460,13 @@ rule "Timing Component Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R027", "Timing Component Rule",
             "Rattling/ticking noise + high mileage", "Check timing components"));
-        insert(CarProblem.create("P027", "Timing Belt/Chain Issue",
+        CarProblem problem = CarProblem.create("P027", "Timing Belt/Chain Issue",
             "Timing component wear or misalignment", ProblemCategory.ENGINE, Severity.CRITICAL,
             new String[]{"Normal wear", "Tensioner failure", "Guide wear"},
             new String[]{"Inspect timing system", "Replace timing components if needed"},
-            1000.0, "6-8 hours"));
+            1000.0, "6-8 hours");
+        insert(problem);
+        problemsMap.put("P027", problem);
 end
 
 // Rule 28: Vacuum Leak
@@ -421,11 +477,13 @@ rule "Vacuum Leak Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R028", "Vacuum Leak Rule",
             "Hissing noise + rough idle", "Check for vacuum leaks"));
-        insert(CarProblem.create("P028", "Vacuum Leak",
+        CarProblem problem = CarProblem.create("P028", "Vacuum Leak",
             "Unmetered air entering engine", ProblemCategory.ENGINE, Severity.MEDIUM,
             new String[]{"Cracked hose", "Failed gasket", "Intake manifold leak"},
             new String[]{"Smoke test intake", "Replace leaking components"},
-            200.0, "2-3 hours"));
+            200.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P028", problem);
 end
 
 // Rule 29: EGR Valve Issue
@@ -437,11 +495,13 @@ rule "EGR Valve Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R029", "EGR Valve Rule",
             "Rough idle + stalling", "Check EGR valve operation"));
-        insert(CarProblem.create("P029", "EGR Valve Problem",
+        CarProblem problem = CarProblem.create("P029", "EGR Valve Problem",
             "Exhaust gas recirculation malfunction", ProblemCategory.EXHAUST_SYSTEM, Severity.MEDIUM,
             new String[]{"Carbon buildup", "Valve failure", "Circuit issues"},
             new String[]{"Clean or replace EGR valve", "Check related components"},
-            300.0, "2-3 hours"));
+            300.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P029", problem);
 end
 
 // Rule 30: PCV Valve Failure
@@ -452,11 +512,13 @@ rule "PCV Valve Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R030", "PCV Valve Rule",
             "Oil smell + blue smoke", "Check PCV system"));
-        insert(CarProblem.create("P030", "PCV Valve Failure",
+        CarProblem problem = CarProblem.create("P030", "PCV Valve Failure",
             "Positive crankcase ventilation issue", ProblemCategory.ENGINE, Severity.MEDIUM,
             new String[]{"Clogged valve", "Hose failure"},
             new String[]{"Replace PCV valve", "Check hoses"},
-            100.0, "1 hour"));
+            100.0, "1 hour");
+        insert(problem);
+        problemsMap.put("P030", problem);
 end
 
 // Rule 31: Thermostat Failure
@@ -467,11 +529,13 @@ rule "Thermostat Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R031", "Thermostat Rule",
             "Overheating without hissing", "Check thermostat operation"));
-        insert(CarProblem.create("P031", "Faulty Thermostat",
+        CarProblem problem = CarProblem.create("P031", "Faulty Thermostat",
             "Coolant flow regulation failure", ProblemCategory.COOLING_SYSTEM, Severity.MEDIUM,
             new String[]{"Stuck closed", "Stuck open", "Spring failure"},
             new String[]{"Replace thermostat"},
-            150.0, "1-2 hours"));
+            150.0, "1-2 hours");
+        insert(problem);
+        problemsMap.put("P031", problem);
 end
 
 // Rule 32: Water Pump Failure
@@ -483,11 +547,13 @@ rule "Water Pump Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R032", "Water Pump Rule",
             "Overheating + coolant leak + grinding noise", "Check water pump"));
-        insert(CarProblem.create("P032", "Water Pump Failure",
+        CarProblem problem = CarProblem.create("P032", "Water Pump Failure",
             "Coolant circulation pump failure", ProblemCategory.COOLING_SYSTEM, Severity.HIGH,
             new String[]{"Bearing failure", "Seal leakage", "Impeller damage"},
             new String[]{"Replace water pump", "Replace timing belt if driven by it"},
-            400.0, "3-5 hours"));
+            400.0, "3-5 hours");
+        insert(problem);
+        problemsMap.put("P032", problem);
 end
 
 // Rule 33: Radiator Fan Issue
@@ -498,11 +564,13 @@ rule "Radiator Fan Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R033", "Radiator Fan Rule",
             "Overheating + fan not working", "Check cooling fan system"));
-        insert(CarProblem.create("P033", "Radiator Fan Failure",
+        CarProblem problem = CarProblem.create("P033", "Radiator Fan Failure",
             "Cooling fan not operating", ProblemCategory.COOLING_SYSTEM, Severity.MEDIUM,
             new String[]{"Fan motor failure", "Relay issue", "Temperature sensor", "Wiring problem"},
             new String[]{"Test fan circuit", "Replace fan motor if needed"},
-            250.0, "2-3 hours"));
+            250.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P033", problem);
 end
 
 // Rule 34: Head Gasket Failure
@@ -514,11 +582,13 @@ rule "Head Gasket Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R034", "Head Gasket Rule",
             "Overheating + white smoke + sweet smell", "Check for head gasket failure"));
-        insert(CarProblem.create("P034", "Blown Head Gasket",
+        CarProblem problem = CarProblem.create("P034", "Blown Head Gasket",
             "Coolant leaking into combustion chamber", ProblemCategory.ENGINE, Severity.CRITICAL,
             new String[]{"Overheating damage", "Manufacturing defect", "Improper installation"},
             new String[]{"Pressure test cooling system", "Replace head gasket", "Check head for warping"},
-            1500.0, "8-12 hours"));
+            1500.0, "8-12 hours");
+        insert(problem);
+        problemsMap.put("P034", problem);
 end
 
 // Rule 35: MAF Sensor Issue
@@ -530,11 +600,13 @@ rule "MAF Sensor Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R035", "MAF Sensor Rule",
             "Rough idle + stalling + increased fuel consumption", "Test MAF sensor"));
-        insert(CarProblem.create("P035", "Faulty MAF Sensor",
+        CarProblem problem = CarProblem.create("P035", "Faulty MAF Sensor",
             "Incorrect air flow measurement", ProblemCategory.ENGINE, Severity.MEDIUM,
             new String[]{"Contamination", "Sensor failure", "Wiring issue"},
             new String[]{"Clean or replace MAF sensor", "Check intake for leaks"},
-            200.0, "1 hour"));
+            200.0, "1 hour");
+        insert(problem);
+        problemsMap.put("P035", problem);
 end
 
 // Rule 36: IAC Valve Problem
@@ -546,11 +618,13 @@ rule "IAC Valve Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R036", "IAC Valve Rule",
             "Rough idle + stalling without hissing", "Check idle air control valve"));
-        insert(CarProblem.create("P036", "IAC Valve Issue",
+        CarProblem problem = CarProblem.create("P036", "IAC Valve Issue",
             "Idle speed control malfunction", ProblemCategory.ENGINE, Severity.MEDIUM,
             new String[]{"Carbon buildup", "Valve failure", "Electrical issue"},
             new String[]{"Clean or replace IAC valve"},
-            180.0, "1-2 hours"));
+            180.0, "1-2 hours");
+        insert(problem);
+        problemsMap.put("P036", problem);
 end
 
 // Rule 37: EVAP System Leak
@@ -562,11 +636,13 @@ rule "EVAP System Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R037", "EVAP System Rule",
             "Check Engine light + fuel smell", "Check EVAP system for leaks"));
-        insert(CarProblem.create("P037", "EVAP System Leak",
+        CarProblem problem = CarProblem.create("P037", "EVAP System Leak",
             "Fuel vapor emission control issue", ProblemCategory.FUEL_SYSTEM, Severity.LOW,
             new String[]{"Loose gas cap", "Cracked hose", "Charcoal canister"},
             new String[]{"Check gas cap", "Smoke test EVAP system"},
-            100.0, "1-2 hours"));
+            100.0, "1-2 hours");
+        insert(problem);
+        problemsMap.put("P037", problem);
 end
 
 // Rule 38: Torque Converter Issue
@@ -577,11 +653,13 @@ rule "Torque Converter Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R038", "Torque Converter Rule",
             "Transmission shudder + power loss", "Check torque converter"));
-        insert(CarProblem.create("P038", "Torque Converter Problem",
+        CarProblem problem = CarProblem.create("P038", "Torque Converter Problem",
             "Torque converter malfunction", ProblemCategory.TRANSMISSION, Severity.HIGH,
             new String[]{"Lockup clutch failure", "Contaminated fluid", "Converter damage"},
             new String[]{"Flush transmission", "Replace torque converter if needed"},
-            900.0, "5-7 hours"));
+            900.0, "5-7 hours");
+        insert(problem);
+        problemsMap.put("P038", problem);
 end
 
 // Rule 39: CV Joint Failure
@@ -592,11 +670,13 @@ rule "CV Joint Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R039", "CV Joint Rule",
             "Clicking noise", "Inspect CV joints"));
-        insert(CarProblem.create("P039", "CV Joint Failure",
+        CarProblem problem = CarProblem.create("P039", "CV Joint Failure",
             "Constant velocity joint worn", ProblemCategory.SUSPENSION, Severity.MEDIUM,
             new String[]{"Torn boot", "Lack of lubrication", "Normal wear"},
             new String[]{"Replace CV axle assembly"},
-            350.0, "2-3 hours"));
+            350.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P039", problem);
 end
 
 // Rule 40: Wheel Bearing Wear
@@ -607,9 +687,86 @@ rule "Wheel Bearing Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R040", "Wheel Bearing Rule",
             "Humming/growling noise", "Check wheel bearings"));
-        insert(CarProblem.create("P040", "Wheel Bearing Failure",
+        CarProblem problem = CarProblem.create("P040", "Wheel Bearing Failure",
             "Wheel bearing wear or damage", ProblemCategory.SUSPENSION, Severity.MEDIUM,
             new String[]{"Normal wear", "Contamination", "Improper installation"},
             new String[]{"Replace wheel bearing/hub assembly"},
-            300.0, "2-3 hours"));
+            300.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P040", problem);
+end
+
+// Rule 41: Oil Pressure Warning
+rule "Oil Pressure Warning Rule"
+    when
+        $s: Symptom(warningLights contains "Oil Pressure")
+        $d: Diagnosis()
+    then
+        $d.getRuleChain().add(RuleExecution.create("R041", "Oil Pressure Warning Rule",
+            "Oil pressure warning light", "Check oil level and pressure immediately"));
+        insert(CarProblem.create("P041", "Low Oil Pressure",
+            "Oil pressure below safe level", ProblemCategory.ENGINE, Severity.CRITICAL,
+            new String[]{"Low oil level", "Faulty oil pump", "Clogged oil filter", "Worn engine bearings"},
+            new String[]{"Check oil level immediately", "Inspect oil pressure sensor", "Test oil pump"},
+            500.0, "3-5 hours"));
+end
+
+// Rule 42: Burning Oil Smell
+rule "Burning Oil Smell Rule"
+    when
+        $s: Symptom(unusualSmells contains "Burning Oil", fluidLeaks contains "Oil")
+        $d: Diagnosis()
+    then
+        $d.getRuleChain().add(RuleExecution.create("R042", "Burning Oil Smell Rule",
+            "Burning oil smell with oil leak", "Inspect for oil leaks on hot surfaces"));
+        insert(CarProblem.create("P042", "Oil Leak on Exhaust",
+            "Oil leaking onto hot exhaust components", ProblemCategory.ENGINE, Severity.MEDIUM,
+            new String[]{"Valve cover gasket leak", "Oil filter housing leak"},
+            new String[]{"Clean engine", "Identify and repair leak"},
+            200.0, "2-3 hours"));
+end
+
+// Rule 43: Blue Exhaust Smoke
+rule "Blue Exhaust Smoke Rule"
+    when
+        $s: Symptom(smokeFromExhaust == "Blue", unusualSmells contains "Burning Oil")
+        $d: Diagnosis()
+    then
+        $d.getRuleChain().add(RuleExecution.create("R043", "Blue Exhaust Smoke Rule",
+            "Blue exhaust smoke with oil smell", "Check for oil consumption issues"));
+        insert(CarProblem.create("P043", "Oil Burning in Combustion",
+            "Engine burning oil", ProblemCategory.ENGINE, Severity.HIGH,
+            new String[]{"Worn piston rings", "Valve seal leakage", "PCV system failure"},
+            new String[]{"Perform compression test", "Check PCV system", "Inspect valve seals"},
+            800.0, "5-7 hours"));
+end
+
+// Rule 44: Knocking Engine Noise
+rule "Engine Knocking Rule"
+    when
+        $s: Symptom(engineNoise == "Knocking", engineType != EngineType.ELECTRIC)
+        $d: Diagnosis()
+    then
+        $d.getRuleChain().add(RuleExecution.create("R044", "Engine Knocking Rule",
+            "Knocking noise from engine", "Check for mechanical engine issues"));
+        insert(CarProblem.create("P044", "Engine Mechanical Problem",
+            "Internal engine knocking detected", ProblemCategory.ENGINE, Severity.CRITICAL,
+            new String[]{"Rod bearing failure", "Piston slap", "Detonation/pinging", "Low oil pressure"},
+            new String[]{"Stop driving immediately", "Perform engine diagnosis", "Check oil pressure"},
+            1500.0, "8-12 hours"));
+end
+
+// Rule 45: Tapping Engine Noise
+rule "Engine Tapping Rule"
+    when
+        $s: Symptom(engineNoise == "Tapping", engineType in (EngineType.GASOLINE, EngineType.DIESEL))
+        $d: Diagnosis()
+    then
+        $d.getRuleChain().add(RuleExecution.create("R045", "Engine Tapping Rule",
+            "Tapping noise from engine", "Check valve train components"));
+        insert(CarProblem.create("P045", "Valve Train Noise",
+            "Tapping noise from valve train", ProblemCategory.ENGINE, Severity.MEDIUM,
+            new String[]{"Hydraulic lifter failure", "Valve clearance adjustment needed", "Low oil pressure"},
+            new String[]{"Check valve clearance", "Test oil pressure", "Inspect lifters/cam followers"},
+            600.0, "4-6 hours"));
 end
