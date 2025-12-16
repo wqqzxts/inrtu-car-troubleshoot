@@ -20,7 +20,7 @@ data class Symptom(
     val brakingIssues: String? = null,
     val electricalProblems: List<String> = emptyList(),
     val mileage: Int,
-    val lastServiceMonths: Int,
+    val lastServiceMonths: Int? = null,
     val unusualSmells: List<String> = emptyList(),
     val fluidLeaks: List<String> = emptyList()
 ) {

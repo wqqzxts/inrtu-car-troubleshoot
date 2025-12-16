@@ -19,11 +19,9 @@ export const useTroubleshooterStore = defineStore('troubleshooter', {
       roughIdling: false,
       transmissionIssues: '',
       brakingIssues: '',
-      electricalProblems: [],
       mileage: 0,
-      lastServiceMonths: 0,
       unusualSmells: [],
-      fluidLeaks: [],
+      fluidLeaks: [],      
     },
     symptomsHistory: [],
   }),
@@ -33,12 +31,14 @@ export const useTroubleshooterStore = defineStore('troubleshooter', {
       this.isLoading = true
       this.error = null
       
-      try {
-        const diagnosis = await troubleshootCar(symptoms)
+      try {        
+        const { electricalProblems, lastServiceMonths, ...filteredSymptoms } = symptoms
+        
+        const diagnosis = await troubleshootCar(filteredSymptoms)
         this.diagnosis = diagnosis
         this.symptomsHistory.unshift({
           timestamp: new Date().toISOString(),
-          symptoms: { ...symptoms },
+          symptoms: { ...filteredSymptoms },
           diagnosis: diagnosis.problem.name
         })
       } catch (error) {
@@ -63,9 +63,7 @@ export const useTroubleshooterStore = defineStore('troubleshooter', {
         roughIdling: false,
         transmissionIssues: '',
         brakingIssues: '',
-        electricalProblems: [],
         mileage: 0,
-        lastServiceMonths: 0,
         unusualSmells: [],
         fluidLeaks: [],
       }
@@ -87,9 +85,7 @@ export const useTroubleshooterStore = defineStore('troubleshooter', {
         roughIdling: true,
         transmissionIssues: '',
         brakingIssues: '',
-        electricalProblems: [],
         mileage: 75000,
-        lastServiceMonths: 12,
         unusualSmells: ['burning_oil'],
         fluidLeaks: ['oil'],
       }

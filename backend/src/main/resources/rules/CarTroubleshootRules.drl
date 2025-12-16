@@ -262,6 +262,7 @@ end
 
 // Rule 16: Worn Spark Plugs
 rule "Worn Spark Plugs Rule"
+    salience 25
     when
         $s: Symptom(roughIdling == true, lossOfPower == true,
                    mileage > 50000, engineType == EngineType.GASOLINE)
@@ -317,15 +318,18 @@ end
 // Rule 19: Transmission Slipping
 rule "Transmission Slipping Rule"
     when
-        $s: Symptom(transmissionIssues == "Slipping", lossOfPower == true)
+        $s: Symptom(transmissionIssues != null && transmissionIssues != "", lossOfPower == true)
         $d: Diagnosis()
     then
-        $d.getRuleChain().add(RuleExecution.create("R019", "Transmission Slipping Rule",
-            "Transmission slips + power loss", "Check transmission fluid and condition"));
-        CarProblem problem = CarProblem.create("P019", "Transmission Slipping",
-            "Gear engagement issues", ProblemCategory.TRANSMISSION, Severity.HIGH,
-            new String[]{"Low fluid", "Worn clutches", "Solenoid issues"},
-            new String[]{"Check fluid level/condition", "Diagnose transmission"},
+        String issueType = $s.getTransmissionIssues();
+        $d.getRuleChain().add(RuleExecution.create("R019", "Transmission Issues Rule",
+            "Transmission issues (" + issueType + ") with power loss",
+            "Check transmission fluid and condition"));
+        CarProblem problem = CarProblem.create("P019", "Transmission Problems",
+            "Various transmission issues detected: " + issueType,
+            ProblemCategory.TRANSMISSION, Severity.HIGH,
+            new String[]{"Low/contaminated fluid", "Worn clutches", "Solenoid issues", "Valve body problems"},
+            new String[]{"Check fluid level/condition", "Diagnose transmission system", "Scan for transmission codes"},
             800.0, "4-6 hours");
         insert(problem);
         problemsMap.put("P019", problem);
@@ -541,8 +545,7 @@ end
 // Rule 32: Water Pump Failure
 rule "Water Pump Rule"
     when
-        $s: Symptom(overheating == true, fluidLeaks contains "Green" ||
-                   fluidLeaks contains "Orange", engineNoise == "Grinding")
+        $s: Symptom(fluidLeaks contains "Green", engineNoise == "Grinding")
         $d: Diagnosis()
     then
         $d.getRuleChain().add(RuleExecution.create("R032", "Water Pump Rule",
@@ -575,8 +578,9 @@ end
 
 // Rule 34: Head Gasket Failure
 rule "Head Gasket Rule"
+    salience 90
     when
-        $s: Symptom(overheating == true, smokeFromExhaust == "White",
+        $s: Symptom(overheating == true, smokeFromExhaust == "white",
                    unusualSmells contains "Sweet")
         $d: Diagnosis()
     then
@@ -743,17 +747,20 @@ end
 
 // Rule 44: Knocking Engine Noise
 rule "Engine Knocking Rule"
+    salience 100  // Highest priority
     when
         $s: Symptom(engineNoise == "Knocking", engineType != EngineType.ELECTRIC)
         $d: Diagnosis()
     then
         $d.getRuleChain().add(RuleExecution.create("R044", "Engine Knocking Rule",
             "Knocking noise from engine", "Check for mechanical engine issues"));
-        insert(CarProblem.create("P044", "Engine Mechanical Problem",
-            "Internal engine knocking detected", ProblemCategory.ENGINE, Severity.CRITICAL,
+        CarProblem problem = CarProblem.create("P044", "Engine Mechanical Problem",
+            "Internal engine knocking detected - CRITICAL", ProblemCategory.ENGINE, Severity.CRITICAL,
             new String[]{"Rod bearing failure", "Piston slap", "Detonation/pinging", "Low oil pressure"},
             new String[]{"Stop driving immediately", "Perform engine diagnosis", "Check oil pressure"},
-            1500.0, "8-12 hours"));
+            1500.0, "8-12 hours");
+        insert(problem);
+        problemsMap.put("P044", problem);
 end
 
 // Rule 45: Tapping Engine Noise
@@ -764,9 +771,100 @@ rule "Engine Tapping Rule"
     then
         $d.getRuleChain().add(RuleExecution.create("R045", "Engine Tapping Rule",
             "Tapping noise from engine", "Check valve train components"));
-        insert(CarProblem.create("P045", "Valve Train Noise",
-            "Tapping noise from valve train", ProblemCategory.ENGINE, Severity.MEDIUM,
-            new String[]{"Hydraulic lifter failure", "Valve clearance adjustment needed", "Low oil pressure"},
-            new String[]{"Check valve clearance", "Test oil pressure", "Inspect lifters/cam followers"},
-            600.0, "4-6 hours"));
+        CarProblem problem = CarProblem.create("P045", "Valve Train Noise",
+                    "Tapping noise from valve train", ProblemCategory.ENGINE, Severity.MEDIUM,
+                    new String[]{"Hydraulic lifter failure", "Valve clearance adjustment needed", "Low oil pressure"},
+                    new String[]{"Check valve clearance", "Test oil pressure", "Inspect lifters/cam followers"},
+                    600.0, "4-6 hours");
+        insert(problem);
+        problemsMap.put("P045", problem);
+end
+
+// Rule 46 transmission delayed engagement
+rule "Transmission Delayed Engagement Rule"
+    when
+        $s: Symptom(transmissionIssues == "delayed_engagement", mileage > 50000)
+        $d: Diagnosis()
+    then
+        $d.getRuleChain().add(RuleExecution.create("R046", "Transmission Delayed Engagement Rule",
+            "Delayed transmission engagement with high mileage", "Check transmission fluid and solenoids"));
+        CarProblem problem = CarProblem.create("P046", "Transmission Delayed Engagement",
+            "Transmission takes time to engage gears", ProblemCategory.TRANSMISSION, Severity.MEDIUM,
+            new String[]{"Low fluid level", "Worn clutch packs", "Faulty solenoids", "Valve body issues"},
+            new String[]{"Check fluid level and condition", "Replace transmission fluid", "Diagnose valve body"},
+            500.0, "3-4 hours");
+        insert(problem);
+        problemsMap.put("P046", problem);
+end
+
+// Rule 47 transmission hard shifts
+rule "Transmission Hard Shifts Rule"
+    when
+        $s: Symptom(transmissionIssues == "hard_shifts")
+        $d: Diagnosis()
+    then
+        $d.getRuleChain().add(RuleExecution.create("R047", "Transmission Hard Shifts Rule",
+            "Harsh or rough gear shifts", "Check transmission control system"));
+        CarProblem problem = CarProblem.create("P047", "Transmission Hard Shifting",
+            "Transmission shifts harshly between gears", ProblemCategory.TRANSMISSION, Severity.MEDIUM,
+            new String[]{"Faulty shift solenoids", "Worn clutch plates", "Transmission control module issues"},
+            new String[]{"Check transmission codes", "Replace shift solenoids", "Update TCM software"},
+            600.0, "4-5 hours");
+        insert(problem);
+        problemsMap.put("P047", problem);
+end
+
+// Rule 48 Brake pulling
+rule "Brake Pulling Rule"
+    when
+        $s: Symptom(brakingIssues == "pulling")
+        $d: Diagnosis()
+    then
+        $d.getRuleChain().add(RuleExecution.create("R048", "Brake Pulling Rule",
+            "Vehicle pulls to one side when braking", "Inspect brake system"));
+        CarProblem problem = CarProblem.create("P048", "Uneven Braking/Pulling",
+            "Vehicle pulls to one side during braking", ProblemCategory.BRAKING_SYSTEM, Severity.MEDIUM,
+            new String[]{"Stuck caliper", "Contaminated brake pads", "Uneven brake pad wear", "Brake hose restriction"},
+            new String[]{"Inspect and clean brake calipers", "Replace brake pads evenly", "Check brake hoses"},
+            350.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P048", problem);
+end
+
+// Rule 49 High mileage issues
+rule "High Mileage Maintenance Rule Simple"
+    when
+        $s: Symptom(mileage > 200000)
+        $d: Diagnosis()
+    then
+        $d.getRuleChain().add(RuleExecution.create("R049", "High Mileage Maintenance Rule",
+            "Vehicle with high mileage needs general inspection", "Perform comprehensive high-mileage inspection"));
+        CarProblem problem = CarProblem.create("P049", "High Mileage Service Needed",
+            "Vehicle with over 100,000 miles requires thorough inspection", ProblemCategory.GENERAL, Severity.MEDIUM,
+            new String[]{"Normal wear and tear", "Age-related component degradation"},
+            new String[]{"Complete fluid flush and replacement", "Inspect all suspension components",
+                        "Check timing components", "Inspect all seals and gaskets"},
+            800.0, "4-6 hours");
+        insert(problem);
+        problemsMap.put("P049", problem);
+end
+
+// Fallback rule for unmatched symptoms
+rule "General Diagnosis Rule"
+    salience -100  // Lowest priority
+    when
+        $s: Symptom()
+        $d: Diagnosis()
+        not CarProblem()
+    then
+        $d.getRuleChain().add(RuleExecution.create("R050", "General Diagnosis Rule",
+            "No specific problem identified", "Perform comprehensive vehicle inspection"));
+        CarProblem problem = CarProblem.create("P050", "General Diagnostic Required",
+            "No specific issues identified - comprehensive inspection needed",
+            ProblemCategory.GENERAL, Severity.LOW,
+            new String[]{"Multiple system issues", "Intermittent problems", "Complex electrical issues"},
+            new String[]{"Perform full system scan", "Road test vehicle", "Check all fluid levels and conditions"},
+            200.0, "2-3 hours");
+        insert(problem);
+        problemsMap.put("P050", problem);
 end

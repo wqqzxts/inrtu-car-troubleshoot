@@ -36,6 +36,21 @@ class CarTroubleshootService {
         "clunking" to "Clunking"
     )
 
+    private val fluidLeaks = mapOf(
+        "knocking" to "Knocking",
+        "tapping" to "Tapping",
+        "rattling" to "Rattling",
+        "clicking" to "Clicking",
+        "hissing" to "Hissing",
+        "whining" to "Whining",
+        "squealing" to "Squealing",
+        "grinding" to "Grinding",
+        "groaning" to "Groaning",
+        "humming" to "Humming",
+        "growling" to "Growling",
+        "clunking" to "Clunking"
+    )
+
     fun diagnose(symptom: Symptom): Diagnosis {
         val normalizedSymptom = normalizeSymptom(symptom)
 
@@ -90,13 +105,6 @@ class CarTroubleshootService {
                         description = "${primaryProblem.description}. Additional potential issues: $additionalProblems"
                     )
                 }
-            } else {
-                val guessedProblem = guessProblemFromSymptoms(normalizedSymptom)
-                if (guessedProblem != null) {
-                    diagnosis.problem = guessedProblem
-                    diagnosis.confidence = 15.0
-                    diagnosis.matchedSymptoms = extractMatchedSymptoms(normalizedSymptom)
-                }
             }
 
         } finally {
@@ -129,10 +137,9 @@ class CarTroubleshootService {
 
         val normalizedUnusualSmells = symptom.unusualSmells.map {
             when (it.lowercase()) {
-                "burning_oil", "burning oil" -> "Burning Oil"
-                "rotten egg", "rotten_egg" -> "Rotten Egg"
+                "burning_oil" -> "Burning Oil"
+                "rotten_egg" -> "Rotten Egg"
                 "sweet" -> "Sweet"
-                "fuel", "gasoline" -> "Fuel"
                 else -> it.replace("_", " ").split(" ").joinToString(" ") { word ->
                     word.replaceFirstChar { char -> char.uppercase() }
                 }
@@ -210,80 +217,5 @@ class CarTroubleshootService {
         symptom.smokeFromExhaust?.takeIf { it.isNotEmpty() }?.let { matched.add("$it Exhaust Smoke") }
 
         return matched
-    }
-
-    private fun guessProblemFromSymptoms(symptom: Symptom): CarProblem? {
-        return when {
-            symptom.fluidLeaks.any { it.contains("Brown") || it.equals("Oil", ignoreCase = true) } &&
-                    symptom.unusualSmells.any { it.contains("Burning Oil") } ->
-                CarProblem(
-                    id = "P006",
-                    name = "Oil Leak",
-                    description = "Engine oil leakage detected with burning oil smell",
-                    category = ProblemCategory.ENGINE,
-                    severity = Severity.MEDIUM,
-                    possibleCauses = listOf("Valve cover gasket", "Oil pan gasket", "Rear main seal"),
-                    solutions = listOf("Identify leak source", "Replace gaskets/seals"),
-                    estimatedRepairCost = 250.0,
-                    estimatedRepairTime = "2-4 hours"
-                )
-
-            symptom.smokeFromExhaust == "Blue" &&
-                    symptom.unusualSmells.any { it.contains("Oil") } ->
-                CarProblem(
-                    id = "P030",
-                    name = "Oil Burning",
-                    description = "Engine burning oil indicated by blue exhaust smoke",
-                    category = ProblemCategory.ENGINE,
-                    severity = Severity.HIGH,
-                    possibleCauses = listOf("Worn piston rings", "Valve seal leakage", "PCV system failure"),
-                    solutions = listOf("Perform compression test", "Check PCV system", "Inspect valve seals"),
-                    estimatedRepairCost = 800.0,
-                    estimatedRepairTime = "5-7 hours"
-                )
-
-            symptom.warningLights.any { it.contains("Oil Pressure") } ->
-                CarProblem(
-                    id = "P041",
-                    name = "Low Oil Pressure",
-                    description = "Oil pressure warning light illuminated",
-                    category = ProblemCategory.ENGINE,
-                    severity = Severity.CRITICAL,
-                    possibleCauses = listOf("Low oil level", "Faulty oil pump", "Clogged oil filter", "Worn engine bearings"),
-                    solutions = listOf("Check oil level immediately", "Inspect oil pressure sensor", "Test oil pump"),
-                    estimatedRepairCost = 500.0,
-                    estimatedRepairTime = "3-5 hours"
-                )
-
-            symptom.engineNoise?.contains("Knocking") == true ->
-                CarProblem(
-                    id = "P044",
-                    name = "Engine Knocking",
-                    description = "Knocking noise from engine indicating mechanical issues",
-                    category = ProblemCategory.ENGINE,
-                    severity = Severity.CRITICAL,
-                    possibleCauses = listOf("Rod bearing failure", "Piston slap", "Detonation/pinging", "Low oil pressure"),
-                    solutions = listOf("Stop driving immediately", "Perform engine diagnosis", "Check oil pressure"),
-                    estimatedRepairCost = 1500.0,
-                    estimatedRepairTime = "8-12 hours"
-                )
-
-            symptom.roughIdling &&
-                    symptom.mileage > 50000 &&
-                    symptom.engineType.toString() == "GASOLINE" ->
-                CarProblem(
-                    id = "P016",
-                    name = "Worn Spark Plugs",
-                    description = "High mileage gasoline engine with rough idle",
-                    category = ProblemCategory.IGNITION_SYSTEM,
-                    severity = Severity.MEDIUM,
-                    possibleCauses = listOf("Normal wear", "Incorrect gap"),
-                    solutions = listOf("Replace spark plugs", "Check ignition timing"),
-                    estimatedRepairCost = 150.0,
-                    estimatedRepairTime = "1-2 hours"
-                )
-
-            else -> null
-        }
     }
 }

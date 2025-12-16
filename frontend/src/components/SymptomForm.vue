@@ -1,14 +1,8 @@
 <template>
   <div class="symptom-form">
-    <div class="form-header">
-      <h2>Car Troubleshooting Expert System</h2>
-      <p class="subtitle">Describe your car's symptoms for diagnosis</p>
-    </div>
-
     <!-- Validation Errors -->
     <div v-if="validationErrors.length > 0" class="validation-errors">
-      <div class="error-header">
-        <span class="error-icon">⚠️</span>
+      <div class="error-header">        
         <h3>Invalid Symptom Combination</h3>
       </div>
       <ul class="error-list">
@@ -25,7 +19,6 @@
       <!-- Basic Information Section -->
       <div class="form-section">
         <h3 class="section-title">
-          <span class="icon">🚗</span>
           Basic Information
         </h3>
         <div class="grid-2">
@@ -62,27 +55,12 @@
               required
             />
           </div>
-
-          <div class="form-group">
-            <label for="lastServiceMonths" class="form-label">
-              Months Since Last Service
-            </label>
-            <input
-              type="number"
-              id="lastServiceMonths"
-              v-model.number="store.formData.lastServiceMonths"
-              min="0"
-              max="120"
-              class="form-input"
-            />
-          </div>
         </div>
       </div>
 
       <!-- Engine Symptoms Section -->
       <div class="form-section">
-        <h3 class="section-title">
-          <span class="icon">⚙️</span>
+        <h3 class="section-title">          
           Engine Symptoms
         </h3>
         <div class="grid-2">
@@ -97,8 +75,7 @@
               <option value="">None</option>
               <option value="knocking">Knocking</option>
               <option value="tapping">Tapping</option>
-              <option value="hissing">Hissing</option>
-              <option value="whistling">Whistling</option>
+              <option value="hissing">Hissing</option>              
               <option value="grinding">Grinding</option>
             </select>
             <small v-if="isElectric" class="field-disabled-hint">
@@ -213,7 +190,6 @@
       <!-- System Issues Section -->
       <div class="form-section">
         <h3 class="section-title">
-          <span class="icon">🔧</span>
           System Issues
         </h3>
 
@@ -252,8 +228,7 @@
 
       <!-- Multi-select Sections -->
       <div class="form-section">
-        <h3 class="section-title">
-          <span class="icon">⚠️</span>
+        <h3 class="section-title">          
           Warning Lights & Other Issues
         </h3>
 
@@ -280,25 +255,6 @@
                 >
                   (N/A)
                 </span>
-              </label>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Electrical Problems</label>
-            <div class="multi-select">
-              <label
-                v-for="problem in electricalProblems"
-                :key="problem.value"
-                class="multi-select-item"
-              >
-                <input
-                  type="checkbox"
-                  :value="problem.value"
-                  v-model="store.formData.electricalProblems"
-                  class="multi-select-checkbox"
-                />
-                <span class="multi-select-text">{{ problem.label }}</span>
               </label>
             </div>
           </div>
@@ -422,10 +378,6 @@ const isHybrid = computed(() => store.formData.engineType === "HYBRID");
 const warningLights = [
   { value: "check_engine", label: "Check Engine" },
   { value: "oil_pressure", label: "Oil Pressure" },
-  { value: "battery", label: "Battery" },
-  { value: "abs", label: "ABS" },
-  { value: "airbag", label: "Airbag" },
-  { value: "coolant_temp", label: "Coolant Temperature" },
   { value: "tire_pressure", label: "Tire Pressure" },
 ];
 
@@ -439,18 +391,14 @@ const electricalProblems = [
 
 const unusualSmells = [
   { value: "burning_oil", label: "Burning Oil" },
-  { value: "coolant", label: "Sweet Coolant" },
-  { value: "gasoline", label: "Gasoline" },
-  { value: "rotten_eggs", label: "Rotten Eggs" },
-  { value: "burning_rubber", label: "Burning Rubber" },
+  { value: "rotten_egg", label: "Rotten Eggs" },
+  { value: "sweet", label: "Sweet" },
 ];
 
 const fluidLeaks = [
   { value: "oil", label: "Oil" },
-  { value: "coolant", label: "Coolant" },
-  { value: "transmission", label: "Transmission Fluid" },
-  { value: "brake", label: "Brake Fluid" },
-  { value: "power_steering", label: "Power Steering Fluid" },
+  { value: "green", label: "Coolant" },
+  { value: "yellow", label: "Brake Fluid" },  
 ];
 
 const filteredWarningLights = computed(() => {

@@ -3,7 +3,7 @@
     <div class="result-header">
       <h2>Diagnosis Result</h2>
       <div class="confidence-badge" :class="confidenceClass">
-        {{ Math.round(diagnosis.confidence * 100) }}% Confidence
+        {{ Math.round(diagnosis.confidence) }}% Confidence
       </div>
     </div>
 
@@ -67,10 +67,6 @@
             </span>
           </div>
         </div>
-
-        <div class="timestamp">
-          Diagnosed at: {{ formatTimestamp(diagnosis.timestamp) }}
-        </div>
       </div>
     </div>
   </div>
@@ -97,10 +93,6 @@ const severityClass = computed(() => {
   const severity = props.diagnosis.problem.severity.toLowerCase()
   return `severity-${severity}`
 })
-
-const formatTimestamp = (timestamp) => {
-  return new Date(timestamp).toLocaleString()
-}
 </script>
 
 <style scoped>

@@ -2,33 +2,11 @@
   <div class="app-container">
     <div class="app-header">
       <div class="header-content">
-        <h1>Car Troubleshooting Expert System</h1>
+        <h1>Car Troubleshooting</h1>
       </div>
     </div>
 
     <div class="app-main">
-      <div class="sidebar">
-        <div class="sidebar-section">
-          <h3>Recent Diagnoses</h3>
-          <div 
-            v-for="record in store.symptomsHistory" 
-            :key="record.timestamp"
-            class="history-item"
-            @click="selectHistory(record)"
-          >
-            <div class="history-time">
-              {{ formatHistoryTime(record.timestamp) }}
-            </div>
-            <div class="history-diagnosis">
-              {{ record.diagnosis }}
-            </div>
-          </div>
-          <div v-if="store.symptomsHistory.length === 0" class="empty-history">
-            No diagnosis history yet
-          </div>
-        </div>
-      </div>
-
       <div class="content">
         <SymptomForm />
         
@@ -69,11 +47,6 @@ const formatHistoryTime = (timestamp) => {
   if (minutes < 60) return `${minutes} min ago`
   if (hours < 24) return `${hours} hours ago`
   return `${days} days ago`
-}
-
-const selectHistory = (record) => {
-  // Could implement history selection to repopulate form
-  console.log('Selected history:', record)
 }
 </script>
 

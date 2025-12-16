@@ -10,5 +10,6 @@ enum class ProblemCategory {
     BRAKING_SYSTEM,
     SUSPENSION,
     BATTERY,
-    IGNITION_SYSTEM
+    IGNITION_SYSTEM,
+    GENERAL
 }

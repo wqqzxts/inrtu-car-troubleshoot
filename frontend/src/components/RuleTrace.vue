@@ -19,8 +19,7 @@
         <div class="timeline-content">
           <div class="rule-header">
             <span class="rule-id">Rule #{{ index + 1 }}</span>
-            <span class="rule-name">{{ rule.ruleName }}</span>
-            <span class="rule-time">{{ formatTime(rule.timestamp) }}</span>
+            <span class="rule-name">{{ rule.ruleName }}</span>            
           </div>
           
           <div class="rule-details">
@@ -56,38 +55,6 @@ const isActive = (index) => {
   return activeIndex.value === index
 }
 
-const formatTime = (timestamp) => {
-  return new Date(timestamp).toLocaleTimeString([], { 
-    hour: '2-digit', 
-    minute: '2-digit',
-    second: '2-digit'
-  })
-}
-
-// Auto-animate through the rule chain
-const startAnimation = () => {
-  if (!props.diagnosis || !props.diagnosis.ruleChain.length) return
-  
-  let index = 0
-  const interval = setInterval(() => {
-    activeIndex.value = index
-    index++
-    
-    if (index >= props.diagnosis.ruleChain.length) {
-      clearInterval(interval)
-      // Keep last item active
-      setTimeout(() => {
-        activeIndex.value = props.diagnosis.ruleChain.length - 1
-      }, 1000)
-    }
-  }, 500)
-}
-
-// Start animation when component is mounted
-import { onMounted } from 'vue'
-onMounted(() => {
-  setTimeout(startAnimation, 1000)
-})
 </script>
 
 <style scoped>
